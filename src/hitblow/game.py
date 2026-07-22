@@ -8,31 +8,42 @@
 
 from .core import judge, make_secret
 
-
 def play(digits=3):
-    secret = make_secret(digits)
     print(f"Hit & Blow（{digits} 桁・重複なし）")
 
-    # ===== ① 開始時に足す（難易度・あいさつ など）: ここに書く =====
+    # ===== ① 開始時に足す（難易度） =====
+    from .difficulty import select_difficulty
+    digits, mode = select_difficulty()
+    secret = make_secret(digits)
 
     tries = 0
     while True:
         guess = input("予想 > ").strip()
 
-        # ===== ② 入力コマンドに足す（ヒント など）: ここに書く（import もここに） =====
-        # 例:  from .hint import hint
-        #      if guess == "h":
-        #          print(hint(secret)); continue
+        # ===== ② 入力コマンドに足す（ヒント） =====
+        from .difficulty import hint
+        if mode == "easy" and guess == "h":
+            print(hint(secret))
+            continue
 
         if len(guess) != digits or not guess.isdigit():
             print(f"{digits} 桁の数字で入力してね")
             continue
+
         tries += 1
         hit, blow = judge(secret, guess)
         print(f"  Hit={hit}  Blow={blow}")
+
         if hit == digits:
 
-            # ===== ③ 勝利時に足す（スコア・履歴 など）: ここに書く =====
+            # ===== ③ 勝利時に足す =====
+            if mode == "hard":
+                print("Hardクリアおめでとう！！")
+
+            from .compliment import compliment
+            msg = compliment(tries)
+            if msg:
+                print(msg)
 
             print(f"正解！ {tries} 回で当たり（答え {secret}）")
             break
